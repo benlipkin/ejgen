@@ -1,5 +1,5 @@
 SHELL := /usr/bin/env bash
-EXEC = python=3.11
+EXEC = python=3.10
 NAME = ejusdemgeneris
 PACKAGE = model
 INSTALL = python -m pip install
