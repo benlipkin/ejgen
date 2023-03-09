@@ -14,8 +14,7 @@ class Pipeline(Object):
         modeltype: str,
         smoothing: float | int,
         embedding: str,
-        dimension: int = 0,
-        samples: int = 0,
+        metric: str,
     ) -> None:
         super().__init__()
         assert isinstance(category, str)
@@ -29,16 +28,11 @@ class Pipeline(Object):
         assert smoothing > 0
         assert isinstance(embedding, str)
         assert embedding in dir(model.embedding)
-        assert isinstance(dimension, int)
-        assert dimension >= 0
-        assert isinstance(samples, int)
-        assert samples >= 0
+        assert isinstance(metric, str)
         self._category = category
         self._examples = list(examples)
         self._targets = list(targets)
-        self._model = getattr(model.model, modeltype)(
-            embedding, dimension, smoothing, samples
-        )
+        self._model = getattr(model.model, modeltype)(embedding, smoothing, metric)
 
     def run(self, mode) -> None:
         assert mode in ("eval", "plot")

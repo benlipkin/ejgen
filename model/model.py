@@ -2,54 +2,40 @@ import typing
 
 import numpy as np
 from numpy.typing import NDArray
-from scipy.spatial import ConvexHull
 from sklearn.metrics import pairwise_distances
 
 import model.embedding
 from model.abstract import Object, IModel
 
 
-class Model(Object, IModel):
-    def __init__(
-        self, embedding: str, dimension: int, smoothing: float | int, samples: int
-    ) -> None:
+class CentroidModel(Object, IModel):
+    def __init__(self, embedding: str, smoothing: float | int, metric: str) -> None:
         super().__init__()
         self._embedder = getattr(model.embedding, embedding)()
-        if dimension > 0:
-            from sklearn.random_projection import GaussianRandomProjection
-
-            self._projection = GaussianRandomProjection(n_components=dimension)
-            self._projection.fit(self._embedder.embed(["a"]))
         self._smoothing = smoothing
-        self._samples = samples
+        self._metric = metric
         self._norm: float
 
     def _embed(self, words: typing.List[str]) -> NDArray[np.float32]:
-        if not hasattr(self, "_projection"):
-            return self._embedder.embed(words)
-        return self._projection.transform(self._embedder.embed(words))
+        return self._embedder.embed(words)
 
     def fit(self, category: str, examples: typing.List[str]) -> None:
         self._category = category
         self._examples = examples
-        self._n = len(self._examples)
         self._seed_vectors = self._embed(self._examples)
         self._centroid = np.mean(self._seed_vectors, axis=0)
-        self._scale = np.max(pairwise_distances(self._seed_vectors))
-        self._slack = self._scale * self._smoothing
-        # incorporate n_examples and category frequency into slack calculation
-        # e.g., slack = scale * smoothing * f(normed_category_frequency) / f(n_examples)
-        # maybe incorporate category embedding into scale calculation for when n=1?
-        # also consider customizing distance metric at least for centroid model
-        # relatedly might drop convex hull model due to computational concerns in high dimensions
-
-    def _calc_proximity(self, points: NDArray[np.float32]) -> NDArray[np.float32]:
-        raise NotImplementedError()
+        self._norm = pairwise_distances(
+            self._seed_vectors, [self._centroid], metric=self._metric
+        ).max()
+        self._slack = self._smoothing / np.sqrt(len(self._examples))
+        # can adjust slack calculation later
+        # maybe incorporate category embedding somehow when n=1?
 
     def _score(self, points: NDArray[np.float32]) -> NDArray[np.float32]:
-        proximity = self._calc_proximity(points)
-        assert 0 <= np.min(proximity) and np.max(proximity) <= 1
-        return proximity  # tweak shape later
+        distances = pairwise_distances(points, [self._centroid]).flatten()
+        normed = (1 - distances / self._norm) / self._slack
+        normed[normed > 0] = 0
+        return np.exp(-(normed**2))  # can adjust shape later
 
     def evaluate(self, targets: typing.List[str]) -> None:
         scores = self._score(self._embed(targets))
@@ -85,52 +71,3 @@ class Model(Object, IModel):
         ax.set_ylim3d(ax_min, ax_max)
         ax.set_zlim3d(ax_min, ax_max)
         plt.show()
-
-
-class ConvexHullModel(Model):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-        self._hull: ConvexHull
-
-    def _sample_jitter(self):
-        jitter = np.vstack(
-            [
-                np.tile(
-                    np.random.normal(size=self._seed_vectors.shape[1]).reshape(-1, 1),
-                    self._seed_vectors.shape[0],
-                ).T
-                for _ in range(self._samples)
-            ]
-        )
-        return jitter / np.linalg.norm(jitter, axis=1).reshape(-1, 1)
-
-    def _build_convex_hull(self) -> ConvexHull:
-        return ConvexHull(
-            np.vstack([self._seed_vectors for _ in range(self._samples)])
-            + self._slack * self._jitter
-        )
-
-    def fit(self, category: str, examples: typing.List[str]) -> None:
-        super().fit(category, examples)
-        self._jitter = self._sample_jitter()
-        self._hull = self._build_convex_hull()
-        self._norm = self._distance_to_hull(self._centroid)
-
-    def _distance_to_hull(self, point: NDArray[np.float32]) -> float:
-        distances = point @ self._hull.equations[:, :-1].T + self._hull.equations[:, -1]
-        return np.min(-distances)
-
-    def _calc_proximity(self, points: NDArray[np.float32]) -> NDArray[np.float32]:
-        distances = np.array([self._distance_to_hull(point) for point in points])
-        return np.clip(distances / self._norm, 0, 1)
-
-
-class CentroidModel(Model):
-    def fit(self, category: str, examples: typing.List[str]) -> None:
-        super().fit(category, examples)
-        self._norm = np.max(pairwise_distances(self._seed_vectors, [self._centroid]))
-
-    def _calc_proximity(self, points: NDArray[np.float32]) -> NDArray[np.float32]:
-        distances = pairwise_distances(points, [self._centroid]).flatten()
-        return 1 - np.clip((distances - self._norm) / self._norm, 0, 1)
