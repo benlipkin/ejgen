@@ -14,6 +14,11 @@ class CentroidModel(Object, IModel):
         self._embedder = getattr(model.embedding, embedding)()
         self._smoothing = smoothing
         self._metric = metric
+        self._category: str
+        self._examples: typing.List[str]
+        self._seed_vectors: NDArray[np.float32]
+        self._centroid: NDArray[np.float32]
+        self._slack: float
         self._norm: float
 
     def _embed(self, words: typing.List[str]) -> NDArray[np.float32]:
