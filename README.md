@@ -18,9 +18,10 @@ __Example Usage:__
 #!/bin/bash
 python -m model run plot \
 	--category=beverages \
-	--examples=gin,whiskey,rum \
+	--examples=gin,whiskey,rum,tequila \
 	--targets=vodka,beer,milk,pizza,car \
 	--modeltype=CentroidModel \
 	--embedding=GloVe \
-	--smoothing=0.1
+	--smoothing=1.0 \
+	--metric=euclidean \
 ```
