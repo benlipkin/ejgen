@@ -41,3 +41,31 @@ html/pylint/index.json : $(PACKAGE)/*.py
 	--disable C0114,C0115,C0116 \
 	--output-format=colorized,json:$@ \
 	|| pylint-exit $$?
+
+## norms	 : run norming pipeline.
+.PHONY : norms
+norms : analysis/materials/norms.csv
+analysis/materials/norms.csv : \
+analysis/materials/norm_all_text-davinci-003_results.csv \
+analysis/src/eval_norms.py
+	@$(ACTIVATE) ; cd analysis/src; python -m eval_norms
+analysis/materials/norm_all_text-davinci-003_results.csv : \
+analysis/materials/norm_all.json \
+analysis/src/probsem/probsem.egg-info/
+	@cd analysis/src/probsem; \
+	source activate probsem; \
+	python -m probsem \
+	--prompt norm \
+	--test all \
+	--input_dir $(shell pwd)/analysis/materials \
+	--output_dir $(shell pwd)/analysis/materials \
+	--model text-davinci-003
+analysis/materials/norm_all.json : analysis/src/collect_samples.py
+	@mkdir -p analysis/materials
+	@$(ACTIVATE) ; cd analysis/src; python -m collect_samples
+analysis/src/probsem/probsem.egg-info/ : 
+	@cd analysis/src; \
+	git clone git@github.com:benlipkin/probsem.git; \
+	cd probsem; \
+	git reset --hard 28e10026532cab9e1eacc3d879aff668ad011836; \
+	make env
