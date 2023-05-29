@@ -4,14 +4,14 @@ import numpy as np
 from numpy.typing import NDArray
 from sklearn.metrics import pairwise_distances
 
-import model.embedding
-from model.abstract import Object, IModel
+import models.wordemb.embedding
+from models.wordemb.abstract import Object, IModel
 
 
 class CentroidModel(Object, IModel):
     def __init__(self, embedding: str, smoothing: float | int, metric: str) -> None:
         super().__init__()
-        self._embedder = getattr(model.embedding, embedding)()
+        self._embedder = getattr(models.wordemb.embedding, embedding)()
         self._smoothing = smoothing
         self._metric = metric
         self._category: str

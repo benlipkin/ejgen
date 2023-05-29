@@ -1,8 +1,8 @@
 import typing
 
-import model.embedding
-import model.model
-from model.abstract import Object
+import models.wordemb.embedding
+import models.wordemb.model
+from models.wordemb.abstract import Object
 
 
 class Pipeline(Object):
@@ -23,16 +23,18 @@ class Pipeline(Object):
         assert isinstance(targets, tuple)
         assert all(isinstance(target, str) for target in targets)
         assert isinstance(modeltype, str)
-        assert modeltype in dir(model.model)
+        assert modeltype in dir(models.wordemb.model)
         assert any(isinstance(smoothing, t) for t in (float, int))
         assert smoothing > 0
         assert isinstance(embedding, str)
-        assert embedding in dir(model.embedding)
+        assert embedding in dir(models.wordemb.embedding)
         assert isinstance(metric, str)
         self._category = category
         self._examples = list(examples)
         self._targets = list(targets)
-        self._model = getattr(model.model, modeltype)(embedding, smoothing, metric)
+        self._model = getattr(models.wordemb.model, modeltype)(
+            embedding, smoothing, metric
+        )
 
     def run(self, mode) -> None:
         assert mode in ("eval", "plot")

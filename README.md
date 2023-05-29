@@ -10,13 +10,13 @@ make env
 
 ## Run
 ```bash
-python -m model run *args **kwargs
+python -m models.wordemb run *args **kwargs
 ```
 
 __Example Usage:__
 ```bash
 #!/bin/bash
-python -m model run plot \
+python -m models.wordemb run plot \
 	--category=beverages \
 	--examples=gin,whiskey,rum,tequila \
 	--targets=vodka,beer,milk,pizza,car \

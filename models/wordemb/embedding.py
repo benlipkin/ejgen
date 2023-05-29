@@ -4,7 +4,7 @@ import gensim.downloader as api
 import numpy as np
 from numpy.typing import NDArray
 
-from model.abstract import Object, IEmbedder
+from models.wordemb.abstract import Object, IEmbedder
 
 
 class Random(Object, IEmbedder):
