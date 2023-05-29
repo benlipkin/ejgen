@@ -4,12 +4,6 @@ NAME = ejgen
 PACKAGE = models
 INSTALL = python -m pip install
 ACTIVATE = source activate $(NAME)
-.DEFAULT_GOAL := help
-
-## help      : print available build commands.
-.PHONY : help
-help : Makefile
-	@sed -n 's/^##/p' $<
 
 ## update    : update repo with latest version from GitHub.
 .PHONY : update
@@ -20,7 +14,7 @@ update :
 .PHONY : env
 env : $(PACKAGE).egg-info/
 $(PACKAGE).egg-info/ : setup.py requirements.txt
-#	@conda create -yn $(NAME) $(EXEC)
+	@conda create -yn $(NAME) $(EXEC)
 	@$(ACTIVATE) ; $(INSTALL) -e .
 
 ## test      : run testing pipeline.
