@@ -187,7 +187,7 @@ function build_timeline(jsPsych, stimuli) {
 function run_expt(stimuli, id) {
   const jsPsych = initJsPsych({
     on_finish: function () {
-      fetch("https://benlipkin.pythonanywhere.com/complete", {
+      fetch("", { // TODO: add complete request
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -195,7 +195,7 @@ function run_expt(stimuli, id) {
         },
         body: JSON.stringify({ stim_id: id }),
       }).then((response) => {
-        window.location = "https://www.prolific.co/"; // TODO: add prolific redirect
+        window.location = ""; // TODO: add prolific redirect
       });
     },
     show_progress_bar: true,
@@ -211,7 +211,7 @@ function run_expt(stimuli, id) {
 }
 
 function main() {
-  fetch("https://benlipkin.pythonanywhere.com/start")
+  fetch("") // TODO: add start request
     .then((response) => response.json())
     .then((data) => {
       stimuli = data["stim_contents"];
