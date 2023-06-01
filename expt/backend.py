@@ -1,18 +1,54 @@
+import os
+import json
+
 import pandas as pd
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+
+
+class DictPersistJSON(dict):
+    def __init__(self, filename, *args, **kwargs):
+        self.filename = filename
+        self._load()
+        self.update(*args, **kwargs)
+
+    def _load(self):
+        if os.path.isfile(self.filename) and os.path.getsize(self.filename) > 0:
+            with open(self.filename, "r") as fh:
+                self.update(json.load(fh))
+
+    def _dump(self):
+        with open(self.filename, "w") as fh:
+            json.dump(self, fh)
+
+    def __getitem__(self, key):
+        return dict.__getitem__(self, key)
+
+    def __setitem__(self, key, val):
+        dict.__setitem__(self, key, val)
+        self._dump()
+
+    def __repr__(self):
+        dictrepr = dict.__repr__(self)
+        return "%s(%s)" % (type(self).__name__, dictrepr)
+
+    def update(self, *args, **kwargs):
+        for k, v in dict(*args, **kwargs).items():
+            self[k] = v
+        self._dump()
+
 
 app = Flask(__name__)
 CORS(app)
 
 N_SETS = 36
 EPSILON = 0.01
-INIT_DB = lambda n: {k + 1: 0.0 for k in range(n)}
+INIT_DB = lambda n: DictPersistJSON("db.json", **{str(k + 1): 0.0 for k in range(n)})
 DATABASE = INIT_DB(N_SETS)
 
 
 def prep_stimuli(stim_id):
-    fname = f"materials/stims_{stim_id:02d}.csv"
+    fname = f"materials/stims_{int(stim_id):02d}.csv"
     table = pd.read_csv(fname)
     stimuli = [
         {"stimulus": "<p>" + stim.replace(".' ", ".'</p><p>") + "</p>"}
