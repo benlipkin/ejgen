@@ -43,8 +43,12 @@ CORS(app)
 
 N_SETS = 36
 EPSILON = 0.01
-INIT_DB = lambda n: DictPersistJSON("db.json", **{str(k + 1): 0.0 for k in range(n)})
-DATABASE = INIT_DB(N_SETS)
+DB_FILENAME = "db.json"
+INIT_DB = lambda n: DictPersistJSON(DB_FILENAME, **{str(k + 1): 0.0 for k in range(n)})
+if not os.path.isfile(DB_FILENAME):
+    DATABASE = INIT_DB(N_SETS)
+else:
+    DATABASE = DictPersistJSON(DB_FILENAME)
 
 
 def prep_stimuli(stim_id):

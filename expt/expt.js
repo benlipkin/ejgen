@@ -29,6 +29,7 @@ function prep_task_instructions() {
       <p>In this experiment, you will be reading descriptions of a category to which a hypothetical rule applies.</p>
       <p>For each category description, you will be shown a new example to which the rule may or may not apply.</p>
       <p>Your task will be to respond <em>Yes</em> or <em>No</em> whether you think the rule applies to that new example.</p>
+      <p>Some of the trials will feel difficult to decide definitively on, and that's okay! Simply choose what you think to be the best response.</p>
       <br>
       <p>Press <b>"Next"</b> to complete a quick comprehension check.</p>
       `,
@@ -78,7 +79,7 @@ function prep_task_comprehension_check() {
   return {
     type: jsPsychSurveyMultiChoice,
     preamble: [
-      "<p>Check your knowledge before you begin. If you don't know the answers, don't worry; we will show you the instructions again.</p>",
+      "<p>Check your knowledge before you begin. If you get one or more questions wrong, don't worry; we will show you the instructions again.</p>",
     ],
     questions: [prep_Q0(), prep_Q1(), prep_Q2()],
     on_finish: function (data) {
@@ -152,7 +153,7 @@ function build_comments_block() {
     type: jsPsychSurveyText,
     preamble: `
           <p>Thank you for participating in our study!</p>
-          <p>Click "Finish" to complete the experiment and receivecompensation. 
+          <p>Click "Finish" to complete the experiment and receive compensation. 
           If you have any comments about the experiment, please let us know in the form below.</p>`,
     questions: [
       {
@@ -187,7 +188,7 @@ function build_timeline(jsPsych, stimuli) {
 function run_expt(stimuli, id) {
   const jsPsych = initJsPsych({
     on_finish: function () {
-      fetch("", { // TODO: add complete request
+      fetch("https://benlipkin.pythonanywhere.com/complete", {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -195,7 +196,7 @@ function run_expt(stimuli, id) {
         },
         body: JSON.stringify({ stim_id: id }),
       }).then((response) => {
-        window.location = ""; // TODO: add prolific redirect
+        window.location = "https://www.prolific.co/"; // TODO: add prolific redirect
       });
     },
     show_progress_bar: true,
@@ -211,7 +212,7 @@ function run_expt(stimuli, id) {
 }
 
 function main() {
-  fetch("") // TODO: add start request
+  fetch("https://benlipkin.pythonanywhere.com/start")
     .then((response) => response.json())
     .then((data) => {
       stimuli = data["stim_contents"];
