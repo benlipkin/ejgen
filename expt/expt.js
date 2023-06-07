@@ -209,6 +209,7 @@ function run_expt(stimuli, id) {
     subject_id: jsPsych.data.getURLVariable("PROLIFIC_PID"),
     study_id: jsPsych.data.getURLVariable("STUDY_ID"),
     session_id: jsPsych.data.getURLVariable("SESSION_ID"),
+    stim_id: id,
   });
   timeline = build_timeline(jsPsych, stimuli);
   jsPsych.run(timeline);
