@@ -180,26 +180,38 @@ function build_comments_block() {
 
 function build_demo_block() {
   return {
-    type: jsPsychSurveyText,
-    preamble: `
-          <p>Thank you for participating in our study!</p>
-          <p>Click "Finish" to complete the experiment and receive compensation.</p>
-          <p>Included below is a demographic questionnaire. This section is <em>optional</em>.</p>`,
-    questions: [
-      {
-        prompt: "What race do you most closely identify with?<br>[American Indian/Alaska Native, Asian, Black or African American, Native Hawaiian or Other Pacific Islander, White, Other (you may specify)]",
-      },
-      {
-        prompt: "What ethnicity do you most closely identify with?<br>[Hispanic or Latino, Not Hispanic or Latino]",
-      },
-      {
-        prompt: "What gender identity do you most closely identify with?<br>[Female, Male, Non-binary, Other (you may specify)]",
-      },
-      {
-        prompt: "What is your age?",
-      }
-    ],
-    button_label: "Finish",
+    type: jsPsychSurvey,
+    title: "Included below is a demographic questionnaire. This section is optional.",
+    button_label_next: "Continue",
+    button_label_back: "Previous",
+    button_label_finish: "Submit",
+    show_question_numbers: "onPage",
+    pages: [
+      [
+        {
+          type: "multi-choice",
+          prompt: "What race do you most closely identify with?",
+          options: ["American Indian/Alaska Native", "Asian", "Black or African American", "Native Hawaiian or Other Pacific Islander", "White"],
+          add_other_option: true,
+          name: "Race",
+        }, {
+          type: "multi-choice",
+          prompt: "What ethnicity do you most closely identify with?",
+          options: ["Hispanic or Latino", "Not Hispanic or Latino"],
+          name: "Ethnicity",
+        }, {
+          type: "multi-choice",
+          prompt: "What gender identity do you most closely identify with?",
+          options: ["Female", "Male", "Non-binary"],
+          add_other_option: true,
+          name: "Gender",
+        }, {
+          type: "text",
+          prompt: "What is your age?",
+          name: "Age",
+        }
+      ]
+    ]
   };
 }
 
