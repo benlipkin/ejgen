@@ -8,8 +8,8 @@ function build_general_instructions() {
       <p>Welcome!</p>
       <p>We are conducting an experiment about language comprehension.
       Your answers will be used to inform scientific research.</p>
-      <p>This experiment should take at most <b>10 minutes</b>. You will be compensated at a base rate 
-      of $15.00/hour for a total of <b>$2.50</b>, which you will receive as long as you complete the study.</p>
+      <p>This experiment should take at most <b>8 minutes</b>. You will be compensated at a base rate 
+      of $15.00/hour for a total of <b>$2.00</b>, which you will receive as long as you complete the study.</p>
       <p> We take your compensation and time seriously! The email for the main experimenter is <b>mitcpllab@gmail.com</b>. 
       Please write this down now, and email us with your Prolific ID and the subject line "Prolific Experiment" 
       if you have problems submitting this task, or if it takes much more time than expected.</p>
@@ -156,8 +156,8 @@ function build_comments_block() {
     type: jsPsychSurveyText,
     preamble: `
           <p>Thank you for participating in our study!</p>
-          <p>Click "Finish" to complete the experiment and receive compensation. 
-          If you have any comments about the experiment, please let us know in the form below.</p>`,
+          <p>Click "Finish" to complete the experiment and receive compensation.</p>
+          <p>If you have any comments about the experiment, please let us know in the form below.</p>`,
     questions: [
       {
         prompt:
@@ -178,6 +178,31 @@ function build_comments_block() {
   };
 }
 
+function build_demo_block() {
+  return {
+    type: jsPsychSurveyText,
+    preamble: `
+          <p>Thank you for participating in our study!</p>
+          <p>Click "Finish" to complete the experiment and receive compensation.</p>
+          <p>Included below is a demographic questionnaire. This section is <em>optional</em>.</p>`,
+    questions: [
+      {
+        prompt: "What race do you most closely identify with?<br>[American Indian/Alaska Native, Asian, Black or African American, Native Hawaiian or Other Pacific Islander, White, Other (you may specify)]",
+      },
+      {
+        prompt: "What ethnicity do you most closely identify with?<br>[Hispanic or Latino, Not Hispanic or Latino]",
+      },
+      {
+        prompt: "What gender identity do you most closely identify with?<br>[Female, Male, Non-binary, Other (you may specify)]",
+      },
+      {
+        prompt: "What is your age?",
+      }
+    ],
+    button_label: "Finish",
+  };
+}
+
 function build_timeline(jsPsych, stimuli) {
   var timeline = [];
   timeline.push(build_general_instructions());
@@ -185,6 +210,7 @@ function build_timeline(jsPsych, stimuli) {
   timeline.push(build_final_instructions(stimuli.length));
   timeline.push(build_trials(jsPsych, stimuli));
   timeline.push(build_comments_block());
+  timeline.push(build_demo_block());
   return timeline;
 }
 
